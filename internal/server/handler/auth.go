@@ -30,6 +30,8 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 					slog.String("error", err.Error()),
 				)
 			}
+
+			return
 		}
 
 		err := validation.ValdateAuthRequest(req)
@@ -47,6 +49,8 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 					slog.String("error", err.Error()),
 				)
 			}
+
+			return
 		}
 
 		user, err := ucase.User(req.Username, req.Password)
@@ -69,6 +73,8 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 					slog.String("error", err.Error()),
 				)
 			}
+
+			return
 		}
 
 		token, err := ucase.Token(user)
@@ -91,6 +97,8 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 					slog.String("error", err.Error()),
 				)
 			}
+
+			return
 		}
 
 		res := model.AuthResponse{
@@ -119,6 +127,8 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 					slog.String("error", err.Error()),
 				)
 			}
+
+			return
 		}
 	}
 }

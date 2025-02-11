@@ -1,11 +1,13 @@
 package usecase
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/storage"
+	"github.com/njslxve/avito-shop/internal/validation"
 )
 
 type Usecase struct {
@@ -22,12 +24,51 @@ func New(logger *slog.Logger, auth *auth.Auth, storage *storage.Storage) *Usecas
 	}
 }
 
-func (u *Usecase) User(username, password string) (model.User, error) {
+func (u *Usecase) User(username, password string) (model.User, error) { //get or create
+	user, err := u.storage.FindUser(username)
+	if err != nil {
+		user, err = u.createUser(username, password)
+		if err != nil {
+			return model.User{}, err
+		}
 
-	return model.User{}, nil
+		return user, nil
+	}
+
+	if !validation.ValidatePassword(user, password) {
+		return model.User{}, fmt.Errorf("invalid password") //TODO
+	}
+
+	return user, nil
 }
 
 func (u *Usecase) Token(user model.User) (string, error) {
+	token, err := u.auth.GenerateToken(user.Username, user.Password)
+	if err != nil {
+		u.logger.Error("failed to generate token",
+			slog.String("username", user.Username),
+			slog.String("error", err.Error()),
+		)
+		return "", err
+	}
 
-	return "", nil
+	return token, nil
+}
+
+func (u *Usecase) createUser(username, password string) (model.User, error) {
+	user := model.User{
+		Username: username,
+		Password: password,
+		Coins:    1000,
+	}
+
+	err := u.storage.CreateUser(user)
+	if err != nil {
+		u.logger.Error("failed to create user",
+			slog.String("username", username),
+			slog.String("error", err.Error()),
+		)
+	}
+
+	return user, err
 }

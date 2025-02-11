@@ -7,14 +7,8 @@ import (
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
-func (s *Storage) CreateUser(username, password string) error {
+func (s *Storage) CreateUser(user model.User) error {
 	const op = "storage.CreateUser"
-
-	user := model.User{
-		Username: username,
-		Password: password,
-		Coins:    1000,
-	}
 
 	querry := qb.Insert("users").
 		Columns("username", "pass", "coins").
