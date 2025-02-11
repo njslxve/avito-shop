@@ -9,11 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/server/handler"
-	"github.com/njslxve/avito-shop/internal/server/mw"
 	"github.com/njslxve/avito-shop/internal/usecase"
 )
 
@@ -32,48 +31,28 @@ func New(cfg *config.Config, logger *slog.Logger, ucase *usecase.Usecase) *Serve
 }
 
 func (s *Server) Run() {
-	r := chi.NewRouter()
+	e := echo.New()
 
-	r.Use(middleware.Timeout(30 * time.Second))
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
+		Timeout: 30 * time.Second,
+	}))
 
-	r.Route("/api", func(r chi.Router) {
-		r.Post("/auth", handler.Auth(s.logger, s.ucase))
-
-		r.Group(func(r chi.Router) {
-			r.Use(mw.AuthMiddleware)
-
-			r.Get("/info", handler.Info)
-		})
-	})
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
-	})
-
-	s.logger.Info("Starting server",
-		slog.String("address", ":8080"),
-	)
-
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-	srv := &http.Server{
-		Addr:         ":8080",
-		Handler:      r,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  120 * time.Second,
-	}
+	e.POST("/api/auth", handler.Auth(s.logger, s.ucase))
 
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			s.logger.Debug("server error",
+		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
+			s.logger.Error("failed to start server",
 				slog.String("error", err.Error()),
 			)
 		}
 	}()
 
 	s.logger.Info("server started")
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -82,7 +61,7 @@ func (s *Server) Run() {
 
 	s.logger.Info("server shutting down")
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := e.Shutdown(ctx); err != nil {
 		s.logger.Error("failed to shutdown server")
 	}
 

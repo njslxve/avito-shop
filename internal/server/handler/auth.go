@@ -5,33 +5,29 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/usecase"
 	"github.com/njslxve/avito-shop/internal/validation"
 )
 
-func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Auth(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
+	return func(c echo.Context) error {
 		const op = "handler.auth"
 
 		var req model.AuthRequest
 
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
 			e := model.Error{
 				Errors: ErrBadRequest,
 			}
 
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
+			logger.Error("failed to decode request body",
+				slog.String("operation", op),
+				slog.String("error", err.Error()),
+			)
 
-			if err := json.NewEncoder(w).Encode(e); err != nil {
-				logger.Error("failed to encode error response",
-					slog.String("operation", op),
-					slog.String("error", err.Error()),
-				)
-			}
-
-			return
+			return c.JSON(http.StatusBadRequest, e)
 		}
 
 		err := validation.ValdateAuthRequest(req)
@@ -40,17 +36,12 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 				Errors: ErrBadRequest,
 			}
 
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
+			logger.Error("failed to validate request",
+				slog.String("operation", op),
+				slog.String("error", err.Error()),
+			)
 
-			if err := json.NewEncoder(w).Encode(e); err != nil {
-				logger.Error("failed to encode error response",
-					slog.String("operation", op),
-					slog.String("error", err.Error()),
-				)
-			}
-
-			return
+			return c.JSON(http.StatusBadRequest, e)
 		}
 
 		user, err := ucase.User(req.Username, req.Password)
@@ -64,17 +55,7 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 				Errors: ErrInternal,
 			}
 
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-
-			if err := json.NewEncoder(w).Encode(e); err != nil {
-				logger.Error("failed to encode error response",
-					slog.String("operation", op),
-					slog.String("error", err.Error()),
-				)
-			}
-
-			return
+			return c.JSON(http.StatusInternalServerError, e)
 		}
 
 		token, err := ucase.Token(user)
@@ -88,47 +69,13 @@ func Auth(logger *slog.Logger, ucase *usecase.Usecase) http.HandlerFunc {
 				Errors: ErrInternal,
 			}
 
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-
-			if err := json.NewEncoder(w).Encode(e); err != nil {
-				logger.Error("failed to encode error response",
-					slog.String("operation", op),
-					slog.String("error", err.Error()),
-				)
-			}
-
-			return
+			return c.JSON(http.StatusInternalServerError, e)
 		}
 
 		res := model.AuthResponse{
 			Token: token,
 		}
 
-		w.Header().Add("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		if err := json.NewEncoder(w).Encode(res); err != nil {
-			logger.Error("failed to encode response",
-				slog.String("operation", op),
-				slog.String("error", err.Error()),
-			)
-
-			e := model.Error{
-				Errors: ErrInternal,
-			}
-
-			w.Header().Add("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-
-			if err := json.NewEncoder(w).Encode(e); err != nil {
-				logger.Error("failed to encode error response",
-					slog.String("operation", op),
-					slog.String("error", err.Error()),
-				)
-			}
-
-			return
-		}
+		return c.JSON(http.StatusOK, res)
 	}
 }
