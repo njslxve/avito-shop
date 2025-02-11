@@ -55,6 +55,24 @@ func (u *Usecase) Token(user model.User) (string, error) {
 	return token, nil
 }
 
+func (u *Usecase) ValidateItem(item string) bool {
+	if err := u.storage.FindItem(item); err != nil {
+		u.logger.Error("failed to find item",
+			slog.String("item", item),
+			slog.String("error", err.Error()),
+		)
+
+		return false
+	}
+
+	return true
+}
+
+func (u *Usecase) BuyItem(item string) error {
+	// TODO
+	return nil
+}
+
 func (u *Usecase) createUser(username, password string) (model.User, error) {
 	user := model.User{
 		Username: username,

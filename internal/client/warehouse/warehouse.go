@@ -1,7 +1,7 @@
 package warehouse
 
 type Warehouse struct {
-	wh map[string]int64
+	Items map[string]int64
 }
 
 func New() *Warehouse {
@@ -18,5 +18,5 @@ func New() *Warehouse {
 	wh["wallet"] = 50
 	wh["pink-hoody"] = 500
 
-	return &Warehouse{wh: wh}
+	return &Warehouse{Items: wh}
 }
