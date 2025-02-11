@@ -3,8 +3,9 @@ package config
 import "github.com/ilyakaznacheev/cleanenv"
 
 type Config struct {
-	Port string `env:"SERVER_PORT"`
-	DB   Database
+	Port      string `env:"SERVER_PORT"`
+	JWTSecret string `env:"JWT_SECRET"`
+	DB        Database
 }
 
 type Database struct {

@@ -11,17 +11,23 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/server/handler"
 	"github.com/njslxve/avito-shop/internal/server/mw"
+	"github.com/njslxve/avito-shop/internal/usecase"
 )
 
 type Server struct {
+	cfg    *config.Config
 	logger *slog.Logger
+	ucase  *usecase.Usecase
 }
 
-func New(logger *slog.Logger) *Server {
+func New(cfg *config.Config, logger *slog.Logger, ucase *usecase.Usecase) *Server {
 	return &Server{
+		cfg:    cfg,
 		logger: logger,
+		ucase:  ucase,
 	}
 }
 
@@ -31,7 +37,7 @@ func (s *Server) Run() {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Route("/api", func(r chi.Router) {
-		r.Post("/auth", handler.Auth)
+		r.Post("/auth", handler.Auth(s.logger, s.ucase))
 
 		r.Group(func(r chi.Router) {
 			r.Use(mw.AuthMiddleware)

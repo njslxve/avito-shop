@@ -4,11 +4,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/njslxve/avito-shop/internal/config"
 )
 
-const (
-	jwtSecret = "kjpcdwewerfvvert"
-)
+type Auth struct {
+	cfg *config.Config
+}
 
 type Claims struct {
 	Username string `json:"username"`
@@ -16,7 +17,13 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(username, password string) (string, error) {
+func New(cfg *config.Config) *Auth {
+	return &Auth{
+		cfg: cfg,
+	}
+}
+
+func (a *Auth) GenerateToken(username, password string) (string, error) {
 	claims := Claims{
 		Username: username,
 		Password: password,
@@ -26,7 +33,7 @@ func GenerateToken(username, password string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(jwtSecret))
+	tokenString, err := token.SignedString([]byte(a.cfg.JWTSecret))
 	if err != nil {
 		return "", err
 	}
@@ -34,9 +41,9 @@ func GenerateToken(username, password string) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateToken(tokenString string) (*Claims, error) {
+func (a *Auth) ValidateToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(jwtSecret), nil
+		return []byte(a.cfg.JWTSecret), nil
 	})
 	if err != nil {
 		return nil, err
