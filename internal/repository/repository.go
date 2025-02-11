@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"log/slog"
@@ -8,14 +8,14 @@ import (
 	"github.com/njslxve/avito-shop/internal/client/warehouse"
 )
 
-type Storage struct {
+type Repository struct {
 	logger *slog.Logger
 	db     *pgx.Conn
 	wh     *warehouse.Warehouse
 }
 
-func New(logger *slog.Logger, db *pgx.Conn, wh *warehouse.Warehouse) *Storage {
-	return &Storage{
+func New(logger *slog.Logger, db *pgx.Conn, wh *warehouse.Warehouse) *Repository {
+	return &Repository{
 		logger: logger,
 		db:     db,
 		wh:     wh,

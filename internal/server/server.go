@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/server/handler"
 	"github.com/njslxve/avito-shop/internal/usecase"
@@ -42,7 +42,7 @@ func (s *Server) Run() {
 
 	e.POST("/api/auth", handler.Auth(s.logger, s.ucase))
 
-	g := e.Group("/api", echojwt.JWT([]byte(s.cfg.JWTSecret)))
+	g := e.Group("/api", auth.JWTMiddleware(s.cfg))
 	g.POST("/buy/:item", handler.BuyItem(s.logger, s.ucase))
 
 	go func() {

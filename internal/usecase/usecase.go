@@ -6,26 +6,26 @@ import (
 
 	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/model"
-	"github.com/njslxve/avito-shop/internal/storage"
+	"github.com/njslxve/avito-shop/internal/repository"
 	"github.com/njslxve/avito-shop/internal/validation"
 )
 
 type Usecase struct {
-	logger  *slog.Logger
-	auth    *auth.Auth
-	storage *storage.Storage
+	logger *slog.Logger
+	auth   *auth.Auth
+	repo   *repository.Repository
 }
 
-func New(logger *slog.Logger, auth *auth.Auth, storage *storage.Storage) *Usecase {
+func New(logger *slog.Logger, auth *auth.Auth, repo *repository.Repository) *Usecase {
 	return &Usecase{
-		logger:  logger,
-		auth:    auth,
-		storage: storage,
+		logger: logger,
+		auth:   auth,
+		repo:   repo,
 	}
 }
 
 func (u *Usecase) User(username, password string) (model.User, error) { //get or create
-	user, err := u.storage.FindUser(username)
+	user, err := u.repo.FindUser(username)
 	if err != nil {
 		user, err = u.createUser(username, password)
 		if err != nil {
@@ -56,7 +56,7 @@ func (u *Usecase) Token(user model.User) (string, error) {
 }
 
 func (u *Usecase) ValidateItem(item string) bool {
-	if err := u.storage.FindItem(item); err != nil {
+	if err := u.repo.FindItem(item); err != nil {
 		u.logger.Error("failed to find item",
 			slog.String("item", item),
 			slog.String("error", err.Error()),
@@ -68,7 +68,7 @@ func (u *Usecase) ValidateItem(item string) bool {
 	return true
 }
 
-func (u *Usecase) BuyItem(item string) error {
+func (u *Usecase) BuyItem(user model.User, item string) error {
 	// TODO
 	return nil
 }
@@ -77,10 +77,9 @@ func (u *Usecase) createUser(username, password string) (model.User, error) {
 	user := model.User{
 		Username: username,
 		Password: password,
-		Coins:    1000,
 	}
 
-	err := u.storage.CreateUser(user)
+	err := u.repo.CreateUser(user)
 	if err != nil {
 		u.logger.Error("failed to create user",
 			slog.String("username", username),

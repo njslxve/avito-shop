@@ -1,8 +1,8 @@
-package storage
+package repository
 
 import "fmt"
 
-func (s *Storage) FindItem(item string) error {
+func (s *Repository) FindItem(item string) error {
 	const op = "storage.FindItem"
 
 	if _, ok := s.wh.Items[item]; !ok {

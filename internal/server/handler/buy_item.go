@@ -14,6 +14,7 @@ func BuyItem(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
 		const op = "handler.BuyItem"
 
 		var item = c.Param("item")
+		var user = c.Get("token").(model.User)
 
 		if !ucase.ValidateItem(item) {
 			e := model.Error{
@@ -28,7 +29,7 @@ func BuyItem(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, e)
 		}
 
-		err := ucase.BuyItem(item)
+		err := ucase.BuyItem(user, item)
 		if err != nil {
 			e := model.Error{
 				Errors: ErrInternal,

@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
-func (s *Storage) CreateUser(user model.User) error {
+func (s *Repository) CreateUser(user model.User) error {
 	const op = "storage.CreateUser"
 
 	querry := qb.Insert("users").

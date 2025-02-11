@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
-func (s *Storage) FindUser(username string) (model.User, error) {
+func (s *Repository) FindUser(username string) (model.User, error) {
 	const op = "storage.FindUser"
 
 	var user model.User

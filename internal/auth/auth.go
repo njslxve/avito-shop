@@ -1,9 +1,12 @@
 package auth
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	echojwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/config"
 )
 
@@ -53,5 +56,22 @@ func (a *Auth) ValidateToken(tokenString string) (*Claims, error) {
 		return claims, nil
 	} else {
 		return nil, err
+	}
+}
+
+func JWTMiddleware(cfg *config.Config) echo.MiddlewareFunc {
+	config := jwtConfig(cfg)
+	return echojwt.WithConfig(config)
+}
+
+func jwtConfig(cfg *config.Config) echojwt.Config {
+	return echojwt.Config{
+		SigningKey: []byte(cfg.JWTSecret),
+		ContextKey: "token",
+		ErrorHandler: func(c echo.Context, err error) error {
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"errors": "Ошбика авторизации",
+			})
+		},
 	}
 }

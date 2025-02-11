@@ -8,8 +8,8 @@ import (
 	"github.com/njslxve/avito-shop/internal/client/postgres"
 	"github.com/njslxve/avito-shop/internal/client/warehouse"
 	"github.com/njslxve/avito-shop/internal/config"
+	"github.com/njslxve/avito-shop/internal/repository"
 	"github.com/njslxve/avito-shop/internal/server"
-	"github.com/njslxve/avito-shop/internal/storage"
 	"github.com/njslxve/avito-shop/internal/usecase"
 	"github.com/njslxve/avito-shop/pkg/logger"
 )
@@ -35,11 +35,11 @@ func main() {
 	}
 
 	wh := warehouse.New()
-	storage := storage.New(lg, client, wh)
+	repo := repository.New(lg, client, wh)
 
 	authService := auth.New(cfg)
 
-	ucase := usecase.New(lg, authService, storage)
+	ucase := usecase.New(lg, authService, repo)
 
 	srv := server.New(cfg, lg, ucase)
 	srv.Run()
