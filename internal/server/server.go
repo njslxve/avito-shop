@@ -34,7 +34,7 @@ func New(cfg *config.Config, logger *slog.Logger, ucase *usecase.Usecase) *Serve
 func (s *Server) Run() {
 	e := echo.New()
 
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: 30 * time.Second,
@@ -43,6 +43,7 @@ func (s *Server) Run() {
 	e.POST("/api/auth", handler.Auth(s.logger, s.ucase))
 
 	g := e.Group("/api", auth.JWTMiddleware(s.cfg))
+	g.GET("/info", handler.Info(s.logger, s.ucase))
 	g.POST("/buy/:item", handler.BuyItem(s.logger, s.ucase))
 	g.POST("/sendCoin", handler.SendCoin(s.logger, s.ucase))
 

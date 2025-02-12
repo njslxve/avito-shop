@@ -22,7 +22,7 @@ func NewClient(cfg *config.Config) (*pgxpool.Pool, error) {
 	}
 
 	config.MaxConns = 50
-	config.MinConns = 5
+	config.MinConns = 10
 
 	pool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {

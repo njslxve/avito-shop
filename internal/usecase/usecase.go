@@ -109,11 +109,6 @@ func (u *Usecase) BuyItem(user model.User, itemname string) error {
 		return err
 	}
 
-	u.logger.Info("item bought",
-		slog.String("username", user.Username),
-		slog.String("item", itemname),
-	)
-
 	return nil
 }
 
@@ -143,6 +138,10 @@ func (u *Usecase) SendCoin(sender model.User, receiverUsername string, amount in
 	}
 
 	return nil //TODO
+}
+
+func (u *Usecase) Info() (model.InfoResponse, error) {
+	return model.InfoResponse{}, nil //TODO
 }
 
 func (u *Usecase) createUser(username, password string) (model.User, error) {
