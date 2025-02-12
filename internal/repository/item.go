@@ -5,15 +5,15 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
 type ItemRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func newItemRepository(db *pgx.Conn) *ItemRepository {
+func newItemRepository(db *pgxpool.Pool) *ItemRepository {
 	return &ItemRepository{
 		db: db,
 	}

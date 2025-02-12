@@ -2,7 +2,7 @@ package repository
 
 import (
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
@@ -34,7 +34,7 @@ type TransactionRepositoryInterface interface {
 	UserHistory(string) ([]string, error)
 }
 
-func New(db *pgx.Conn) *Repository {
+func New(db *pgxpool.Pool) *Repository {
 	return &Repository{
 		User:        newUserRepository(db),
 		Item:        newItemRepository(db),

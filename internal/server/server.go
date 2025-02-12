@@ -34,7 +34,6 @@ func New(cfg *config.Config, logger *slog.Logger, ucase *usecase.Usecase) *Serve
 func (s *Server) Run() {
 	e := echo.New()
 
-	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Timeout: 30 * time.Second,

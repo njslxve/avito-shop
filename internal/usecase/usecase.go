@@ -117,6 +117,10 @@ func (u *Usecase) BuyItem(user model.User, itemname string) error {
 	return nil
 }
 
+func (u *Usecase) SendCoin(user model.User, receiver string, amount int64) error {
+	return nil //TODO
+}
+
 func (u *Usecase) createUser(username, password string) (model.User, error) {
 	user := model.User{
 		Username: username,

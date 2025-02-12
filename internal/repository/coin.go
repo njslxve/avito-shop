@@ -5,15 +5,15 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
 type CoinRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func newCoinRepository(db *pgx.Conn) *CoinRepository {
+func newCoinRepository(db *pgxpool.Pool) *CoinRepository {
 	return &CoinRepository{
 		db: db,
 	}

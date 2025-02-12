@@ -11,6 +11,12 @@ func ValdateAuthRequest(r model.AuthRequest) error {
 	return v.Struct(r)
 }
 
+func ValidateSendCoinRequest(r model.SendCoinRequest) error {
+	v := validator.New(validator.WithRequiredStructEnabled())
+
+	return v.Struct(r)
+}
+
 func ValidatePassword(u model.User, p string) bool {
 	return u.Password == p
 }
