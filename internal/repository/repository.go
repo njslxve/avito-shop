@@ -24,7 +24,7 @@ type ItemRepositoryInterface interface {
 }
 
 type CoinRepositoryInterface interface {
-	CreateTransfer(string, string, int) error
+	CreateTransfer(string, string, int64) error
 	SenderHistory(string) ([]model.Transaction, error)
 	ReceiverHistory(string) ([]model.Transaction, error)
 }

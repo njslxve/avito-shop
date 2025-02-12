@@ -10,7 +10,7 @@ type AuthResponse struct {
 }
 
 type SendCoinRequest struct {
-	ToUser string `json:"to_user" validate:"required"`
+	ToUser string `json:"toUser" validate:"required"`
 	Amount int64  `json:"amount" validate:"required"`
 }
 

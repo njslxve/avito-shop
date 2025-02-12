@@ -19,7 +19,7 @@ func newCoinRepository(db *pgxpool.Pool) *CoinRepository {
 	}
 }
 
-func (cr *CoinRepository) CreateTransfer(from string, to string, amount int) error {
+func (cr *CoinRepository) CreateTransfer(from string, to string, amount int64) error {
 	const op = "repository.TransferCoins"
 
 	querry := qb.Insert("user_transactions").
