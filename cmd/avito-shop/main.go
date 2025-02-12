@@ -6,7 +6,6 @@ import (
 
 	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/client/postgres"
-	"github.com/njslxve/avito-shop/internal/client/warehouse"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/repository"
 	"github.com/njslxve/avito-shop/internal/server"
@@ -34,8 +33,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	wh := warehouse.New()
-	repo := repository.New(lg, client, wh)
+	repo := repository.New(client)
 
 	authService := auth.New(cfg)
 

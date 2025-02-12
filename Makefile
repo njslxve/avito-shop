@@ -4,4 +4,4 @@ up:
 
 .PHONY: down
 down:
-	@docker compose down && docker rmi deploy-avito-shop-service:latest
+	@docker compose down && docker rmi avito-shop-avito-shop-service:latest

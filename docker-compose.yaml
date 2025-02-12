@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   avito-shop-service:
-      build: ..
+      build: .
       container_name: avito-shop-service
       ports:
         - "8080:8080"

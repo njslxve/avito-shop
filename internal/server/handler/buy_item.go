@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/usecase"
@@ -14,7 +15,39 @@ func BuyItem(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
 		const op = "handler.BuyItem"
 
 		var item = c.Param("item")
-		var user = c.Get("token").(model.User)
+		token, ok := c.Get("token").(*jwt.Token)
+		if !ok {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+		}
+
+		username, ok := claims["username"].(string)
+		if !ok {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+		}
+
+		password, ok := claims["password"].(string)
+		if !ok {
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+		}
+
+		user, err := ucase.User(username, password)
+		if err != nil {
+			e := model.Error{
+				Errors: ErrInternal,
+			}
+
+			logger.Error("failed to find user",
+				slog.String("operation", op),
+				slog.String("error", err.Error()),
+			)
+
+			return c.JSON(http.StatusInternalServerError, e)
+		}
 
 		if !ucase.ValidateItem(item) {
 			e := model.Error{
@@ -29,7 +62,7 @@ func BuyItem(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, e)
 		}
 
-		err := ucase.BuyItem(user, item)
+		err = ucase.BuyItem(user, item)
 		if err != nil {
 			e := model.Error{
 				Errors: ErrInternal,

@@ -1,24 +1,45 @@
 package repository
 
 import (
-	"log/slog"
-
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
-	"github.com/njslxve/avito-shop/internal/client/warehouse"
+	"github.com/njslxve/avito-shop/internal/model"
 )
 
 type Repository struct {
-	logger *slog.Logger
-	db     *pgx.Conn
-	wh     *warehouse.Warehouse
+	User        UserRepositoryIterface
+	Item        ItemRepositoryInterface
+	Coin        CoinRepositoryInterface
+	Transaction TransactionRepositoryInterface
 }
 
-func New(logger *slog.Logger, db *pgx.Conn, wh *warehouse.Warehouse) *Repository {
+type UserRepositoryIterface interface {
+	Create(user model.User) error
+	FindUser(username string) (model.User, error)
+	UpdateUserCoins(user model.User, amount int64) error
+}
+
+type ItemRepositoryInterface interface {
+	FindItem(itemname string) (model.Item, error)
+}
+
+type CoinRepositoryInterface interface {
+	CreateTransfer(string, string, int) error
+	SenderHistory(string) ([]model.Transaction, error)
+	ReceiverHistory(string) ([]model.Transaction, error)
+}
+
+type TransactionRepositoryInterface interface {
+	Create(string, string) error
+	UserHistory(string) ([]string, error)
+}
+
+func New(db *pgx.Conn) *Repository {
 	return &Repository{
-		logger: logger,
-		db:     db,
-		wh:     wh,
+		User:        newUserRepository(db),
+		Item:        newItemRepository(db),
+		Coin:        newCoinRepository(db),
+		Transaction: newTransactionRepository(db),
 	}
 }
 

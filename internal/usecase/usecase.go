@@ -25,7 +25,7 @@ func New(logger *slog.Logger, auth *auth.Auth, repo *repository.Repository) *Use
 }
 
 func (u *Usecase) User(username, password string) (model.User, error) { //get or create
-	user, err := u.repo.FindUser(username)
+	user, err := u.repo.User.FindUser(username)
 	if err != nil {
 		user, err = u.createUser(username, password)
 		if err != nil {
@@ -55,10 +55,11 @@ func (u *Usecase) Token(user model.User) (string, error) {
 	return token, nil
 }
 
-func (u *Usecase) ValidateItem(item string) bool {
-	if err := u.repo.FindItem(item); err != nil {
+func (u *Usecase) ValidateItem(itemname string) bool {
+	item, err := u.repo.Item.FindItem(itemname)
+	if err != nil {
 		u.logger.Error("failed to find item",
-			slog.String("item", item),
+			slog.String("item", item.Type),
 			slog.String("error", err.Error()),
 		)
 
@@ -68,8 +69,51 @@ func (u *Usecase) ValidateItem(item string) bool {
 	return true
 }
 
-func (u *Usecase) BuyItem(user model.User, item string) error {
-	// TODO
+func (u *Usecase) BuyItem(user model.User, itemname string) error {
+	item, err := u.repo.Item.FindItem(itemname)
+	if err != nil {
+		u.logger.Error("failed to find item",
+			slog.String("item", itemname),
+			slog.String("error", err.Error()),
+		)
+	}
+
+	if item.Price > user.Coins {
+		return fmt.Errorf("not enough coins")
+	}
+
+	err = u.repo.User.UpdateUserCoins(user, -item.Price)
+	if err != nil {
+		u.logger.Error("failed to update user coins",
+			slog.String("username", user.Username),
+			slog.String("error", err.Error()),
+		)
+	}
+
+	err = u.repo.Transaction.Create(user.ID, item.ID)
+	if err != nil {
+		u.logger.Error("failed to create transaction",
+			slog.String("username", user.Username),
+			slog.String("item", itemname),
+			slog.String("error", err.Error()),
+		)
+
+		err = u.repo.User.UpdateUserCoins(user, item.Price)
+		if err != nil {
+			u.logger.Error("failed to refund user coins",
+				slog.String("username", user.Username),
+				slog.String("error", err.Error()),
+			)
+		}
+
+		return err
+	}
+
+	u.logger.Info("item bought",
+		slog.String("username", user.Username),
+		slog.String("item", itemname),
+	)
+
 	return nil
 }
 
@@ -79,7 +123,7 @@ func (u *Usecase) createUser(username, password string) (model.User, error) {
 		Password: password,
 	}
 
-	err := u.repo.CreateUser(user)
+	err := u.repo.User.Create(user)
 	if err != nil {
 		u.logger.Error("failed to create user",
 			slog.String("username", username),
