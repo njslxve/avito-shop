@@ -9,3 +9,7 @@ down:
 .PHONY: load
 load:
 	@cd k6-config && k6 run loadtest.js
+
+.PHONY: test
+test:
+	@go test ./internal/... -cover

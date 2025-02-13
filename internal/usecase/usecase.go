@@ -7,7 +7,6 @@ import (
 	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/repository"
-	"github.com/njslxve/avito-shop/internal/validation"
 )
 
 type Usecase struct {
@@ -22,24 +21,6 @@ func New(logger *slog.Logger, auth *auth.Auth, repo *repository.Repository) *Use
 		auth:   auth,
 		repo:   repo,
 	}
-}
-
-func (u *Usecase) User(username, password string) (model.User, error) { //get or create
-	user, err := u.repo.User.FindUser(username)
-	if err != nil {
-		user, err = u.createUser(username, password)
-		if err != nil {
-			return model.User{}, err
-		}
-
-		return user, nil
-	}
-
-	if !validation.ValidatePassword(user, password) {
-		return model.User{}, fmt.Errorf("invalid password") //TODO
-	}
-
-	return user, nil
 }
 
 func (u *Usecase) Token(user model.User) (string, error) {
@@ -138,58 +119,6 @@ func (u *Usecase) SendCoin(sender model.User, receiverUsername string, amount in
 	}
 
 	return nil //TODO
-}
-
-func (u *Usecase) Info(user model.User) (model.InfoResponse, error) {
-	var infoResponse model.InfoResponse
-
-	purshases, err := u.repo.Transaction.UserHistory(user.ID)
-	if err != nil {
-		return model.InfoResponse{}, err
-	}
-
-	itemInfo := aggregatePurshases(purshases)
-
-	senderHist, err := u.repo.Coin.SenderHistory(user.ID)
-	if err != nil {
-		return model.InfoResponse{}, err
-	}
-
-	receiverHist, err := u.repo.Coin.ReceiverHistory(user.ID)
-	if err != nil {
-		return model.InfoResponse{}, err
-	}
-
-	sender := aggregateSender(senderHist)
-	receiver := aggregateReceiver(receiverHist)
-
-	infoResponse = model.InfoResponse{
-		Coins:     user.Coins,
-		Inventory: itemInfo,
-		CoinHistory: model.History{
-			Received: receiver,
-			Sent:     sender,
-		},
-	}
-
-	return infoResponse, nil //TODO
-}
-
-func (u *Usecase) createUser(username, password string) (model.User, error) {
-	user := model.User{
-		Username: username,
-		Password: password,
-	}
-
-	err := u.repo.User.Create(user)
-	if err != nil {
-		u.logger.Error("failed to create user",
-			slog.String("username", username),
-			slog.String("error", err.Error()),
-		)
-	}
-
-	return user, err
 }
 
 func aggregatePurshases(purshases []string) []model.ItemInfo {
