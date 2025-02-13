@@ -38,3 +38,9 @@ func (mu *MockUsecase) SendCoin(sender model.User, to string, amount int64) erro
 
 	return args.Error(0)
 }
+
+func (mu *MockUsecase) Info(user model.User) (model.InfoResponse, error) {
+	args := mu.Called(user)
+
+	return args.Get(0).(model.InfoResponse), args.Error(1)
+}

@@ -1,8 +1,6 @@
 package handler_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +16,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestSendCoin(t *testing.T) {
+func TestInfo(t *testing.T) {
 	logger := slog.Default()
 
 	cfg := &config.Config{
@@ -32,7 +30,7 @@ func TestSendCoin(t *testing.T) {
 
 	mockucase := new(mocks.MockUsecase)
 
-	e.POST("api/sendCoin", handler.SendCoin(logger, mockucase))
+	e.GET("api/info", handler.Info(logger, mockucase))
 
 	testUser := model.User{
 		Username: "testuser",
@@ -40,19 +38,14 @@ func TestSendCoin(t *testing.T) {
 		Coins:    1000,
 	}
 
-	req := model.SendCoinRequest{
-		ToUser: "testreceiver",
-		Amount: 200,
-	}
-
-	reqBody, _ := json.Marshal(req)
-
 	testToken, _ := a.GenerateToken(testUser.Username, testUser.Password)
 
 	mockucase.On("User", mock.Anything, mock.Anything).Return(testUser, nil)
-	mockucase.On("SendCoin", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	mockucase.On("Info", mock.Anything).Return(model.InfoResponse{
+		Coins: 1000,
+	}, nil)
 
-	httpReq := httptest.NewRequest("POST", "/api/sendCoin", bytes.NewBuffer(reqBody))
+	httpReq := httptest.NewRequest("GET", "/api/info", nil)
 	httpReq.Header.Set(echo.HeaderAuthorization, "Bearer "+testToken)
 	httpReq.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 

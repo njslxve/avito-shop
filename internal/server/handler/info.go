@@ -7,10 +7,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/model"
-	"github.com/njslxve/avito-shop/internal/usecase"
 )
 
-func Info(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
+type InfoInterface interface {
+	User(string, string) (model.User, error)
+	Info(model.User) (model.InfoResponse, error)
+}
+
+func Info(logger *slog.Logger, ucase InfoInterface) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		const op = "handler.Info"
 
