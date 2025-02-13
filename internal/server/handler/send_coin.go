@@ -7,11 +7,15 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/model"
-	"github.com/njslxve/avito-shop/internal/usecase"
 	"github.com/njslxve/avito-shop/internal/validation"
 )
 
-func SendCoin(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
+type SendCoinInterface interface {
+	User(username, password string) (model.User, error)
+	SendCoin(model.User, string, int64) error
+}
+
+func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		const op = "handler.SendCoin"
 

@@ -7,11 +7,15 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/model"
-	"github.com/njslxve/avito-shop/internal/usecase"
 	"github.com/njslxve/avito-shop/internal/validation"
 )
 
-func Auth(logger *slog.Logger, ucase *usecase.Usecase) echo.HandlerFunc {
+type AuthInterface interface {
+	User(string, string) (model.User, error)
+	Token(model.User) (string, error)
+}
+
+func Auth(logger *slog.Logger, ucase AuthInterface) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		const op = "handler.auth"
 
