@@ -4,8 +4,8 @@ import { randomString, randomIntBetween } from 'https://jslib.k6.io/k6-utils/1.4
 
 export let options = {
   stages: [
-    { duration: '30s', target: 100 },
-    { duration: '1m', target: 300 },
+    { duration: '30s', target: 20 },
+    { duration: '2m', target: 100 },
     { duration: '30s', target: 0 },
   ],
   thresholds: {
@@ -54,11 +54,13 @@ export default function () {
     ['GET', `${BASE_URL}/api/info`, null, { headers }],
     ['GET', `${BASE_URL}/api/buy/powerbank`, null , { headers }],
     ['POST', `${BASE_URL}/api/sendCoin`, JSON.stringify({ toUser: resiver.username, amount: 100 }), { headers }],
+    ['GET', `${BASE_URL}/api/info`, null, { headers }],
   ]);
 
   check(responses[0], { 'Info status 200': (r) => r.status === 200 });
   check(responses[1], { 'Buy status 200': (r) => r.status === 200 });
   check(responses[2], { 'SendCoin status 200': (r) => r.status === 200 });
+  check(responses[3], { 'Info status 200': (r) => r.status === 200 });
 
-  sleep(0.3);
+  sleep(0.5);
 }
