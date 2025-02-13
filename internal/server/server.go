@@ -44,7 +44,7 @@ func (s *Server) Run() {
 
 	g := e.Group("/api", auth.JWTMiddleware(s.cfg))
 	g.GET("/info", handler.Info(s.logger, s.ucase))
-	g.POST("/buy/:item", handler.BuyItem(s.logger, s.ucase))
+	g.GET("/buy/:item", handler.BuyItem(s.logger, s.ucase))
 	g.POST("/sendCoin", handler.SendCoin(s.logger, s.ucase))
 
 	go func() {

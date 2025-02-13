@@ -140,8 +140,39 @@ func (u *Usecase) SendCoin(sender model.User, receiverUsername string, amount in
 	return nil //TODO
 }
 
-func (u *Usecase) Info() (model.InfoResponse, error) {
-	return model.InfoResponse{}, nil //TODO
+func (u *Usecase) Info(user model.User) (model.InfoResponse, error) {
+	var infoResponse model.InfoResponse
+
+	purshases, err := u.repo.Transaction.UserHistory(user.ID)
+	if err != nil {
+		return model.InfoResponse{}, err
+	}
+
+	itemInfo := aggregatePurshases(purshases)
+
+	senderHist, err := u.repo.Coin.SenderHistory(user.ID)
+	if err != nil {
+		return model.InfoResponse{}, err
+	}
+
+	receiverHist, err := u.repo.Coin.ReceiverHistory(user.ID)
+	if err != nil {
+		return model.InfoResponse{}, err
+	}
+
+	sender := aggregateSender(senderHist)
+	receiver := aggregateReceiver(receiverHist)
+
+	infoResponse = model.InfoResponse{
+		Coins:     user.Coins,
+		Inventory: itemInfo,
+		CoinHistory: model.History{
+			Received: receiver,
+			Sent:     sender,
+		},
+	}
+
+	return infoResponse, nil //TODO
 }
 
 func (u *Usecase) createUser(username, password string) (model.User, error) {
@@ -159,4 +190,49 @@ func (u *Usecase) createUser(username, password string) (model.User, error) {
 	}
 
 	return user, err
+}
+
+func aggregatePurshases(purshases []string) []model.ItemInfo {
+	m := make(map[string]int64)
+
+	for _, purshase := range purshases {
+		m[purshase]++
+	}
+
+	var itemInfo []model.ItemInfo
+
+	for item, quantity := range m {
+		itemInfo = append(itemInfo, model.ItemInfo{
+			Type:     item,
+			Quantity: quantity,
+		})
+	}
+
+	return itemInfo
+}
+
+func aggregateSender(senderHist []model.Transaction) []model.Sent {
+	var sent []model.Sent
+
+	for _, hist := range senderHist {
+		sent = append(sent, model.Sent{
+			ToUser: hist.Username,
+			Amount: hist.Amount,
+		})
+	}
+
+	return sent
+}
+
+func aggregateReceiver(receiverHist []model.Transaction) []model.Received {
+	var received []model.Received
+
+	for _, hist := range receiverHist {
+		received = append(received, model.Received{
+			FromUser: hist.Username,
+			Amount:   hist.Amount,
+		})
+	}
+
+	return received
 }

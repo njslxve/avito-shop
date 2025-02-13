@@ -52,7 +52,7 @@ export default function () {
 
   const responses = http.batch([
     ['GET', `${BASE_URL}/api/info`, null, { headers }],
-    ['POST', `${BASE_URL}/api/buy/powerbank`, null , { headers }],
+    ['GET', `${BASE_URL}/api/buy/powerbank`, null , { headers }],
     ['POST', `${BASE_URL}/api/sendCoin`, JSON.stringify({ toUser: resiver.username, amount: 100 }), { headers }],
   ]);
 
