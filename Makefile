@@ -12,4 +12,4 @@ load:
 
 .PHONY: test
 test:
-	@go test ./internal/... -cover
+	@go test -coverpkg=./internal/... -coverprofile=coverage.out ./... && go tool cover -func=coverage.out
