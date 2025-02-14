@@ -13,14 +13,20 @@ type MockUserRepository struct {
 	mock.Mock
 }
 
-func (mu *MockUserRepository) Create(user model.User) error {
+func (mu *MockUserRepository) Create(user model.User) (string, error) {
 	args := mu.Called(user)
 
-	return args.Error(0)
+	return args.String(0), args.Error(1)
 }
 
-func (mu *MockUserRepository) FindUser(username string) (model.User, error) {
+func (mu *MockUserRepository) FindUserByName(username string) (model.User, error) {
 	args := mu.Called(username)
+
+	return args.Get(0).(model.User), args.Error(1)
+}
+
+func (mu *MockUserRepository) FindUserByID(userID string) (model.User, error) {
+	args := mu.Called(userID)
 
 	return args.Get(0).(model.User), args.Error(1)
 }

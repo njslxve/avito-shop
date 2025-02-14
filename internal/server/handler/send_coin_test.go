@@ -35,9 +35,8 @@ func TestSendCoin(t *testing.T) {
 	e.POST("api/sendCoin", handler.SendCoin(logger, mockucase))
 
 	testUser := model.User{
-		Username: "testuser",
-		Password: "testpass",
-		Coins:    1000,
+		ID:    "testID-0000-test-test",
+		Coins: 1000,
 	}
 
 	req := model.SendCoinRequest{
@@ -47,9 +46,9 @@ func TestSendCoin(t *testing.T) {
 
 	reqBody, _ := json.Marshal(req)
 
-	testToken, _ := a.GenerateToken(testUser.Username, testUser.Password)
+	testToken, _ := a.GenerateToken(testUser.ID)
 
-	mockucase.On("User", mock.Anything, mock.Anything).Return(testUser, nil)
+	mockucase.On("UserByID", mock.Anything).Return(testUser, nil)
 	mockucase.On("SendCoin", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	httpReq := httptest.NewRequest("POST", "/api/sendCoin", bytes.NewBuffer(reqBody))
@@ -59,6 +58,8 @@ func TestSendCoin(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	e.ServeHTTP(rr, httpReq)
+
+	t.Logf("AAAAAAAAAAAAAA: %s", rr.Body.String())
 
 	assert.Equal(t, http.StatusOK, rr.Code)
 

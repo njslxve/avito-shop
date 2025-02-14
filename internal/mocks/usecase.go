@@ -15,14 +15,20 @@ func (mu *MockUsecase) ValidateItem(itemname string) bool {
 	return args.Bool(0)
 }
 
-func (mu *MockUsecase) User(username, password string) (model.User, error) {
+func (mu *MockUsecase) UserByName(username, password string) (model.User, error) {
 	args := mu.Called(username, password)
 
 	return args.Get(0).(model.User), args.Error(1)
 }
 
-func (mu *MockUsecase) Token(user model.User) (string, error) {
-	args := mu.Called(user)
+func (mu *MockUsecase) UserByID(userID string) (model.User, error) {
+	args := mu.Called(userID)
+
+	return args.Get(0).(model.User), args.Error(1)
+}
+
+func (mu *MockUsecase) Token(userID string) (string, error) {
+	args := mu.Called(userID)
 
 	return args.String(0), args.Error(1)
 }

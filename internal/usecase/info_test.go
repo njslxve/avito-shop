@@ -15,9 +15,9 @@ func TestInfo(t *testing.T) {
 	mockCoinRepo := new(mocks.MockCoinRepository)
 
 	testuser := model.User{
-		Username: "testuser",
-		Password: "testpass",
-		Coins:    100,
+		Username:     "testuser",
+		PasswordHash: "testpass",
+		Coins:        100,
 	}
 
 	u := New(nil, nil, &repository.Repository{

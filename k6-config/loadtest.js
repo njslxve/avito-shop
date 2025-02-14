@@ -4,8 +4,10 @@ import { randomString, randomIntBetween } from 'https://jslib.k6.io/k6-utils/1.4
 
 export let options = {
   stages: [
-    { duration: '30s', target: 20 },
-    { duration: '2m', target: 100 },
+    { duration: '30s', target: 100 },
+    { duration: '30s', target: 250 },
+    { duration: '30s', target: 500 },
+    { duration: '1m', target: 500 },
     { duration: '30s', target: 0 },
   ],
   thresholds: {
@@ -15,6 +17,9 @@ export let options = {
 };
 
 const BASE_URL = 'http://localhost:8080';
+const URLS = new Map();
+
+let resivers = [];
 
 function generateUser(vuId) {
   const prefix = `user_${vuId}_${randomString(5)}`;
@@ -27,13 +32,12 @@ function generateUser(vuId) {
 export default function () {
   const user = generateUser(__VU);
 
-  const resivers = []
   resivers.push(user)
 
   const resiver = resivers[randomIntBetween(0, resivers.length - 1)]
 
   const authRes = http.post(
-    'http://localhost:8080/api/auth',
+    `${BASE_URL}/api/auth`,
     JSON.stringify(user),
     { headers: { 'Content-Type': 'application/json' } }
   );
@@ -50,17 +54,31 @@ export default function () {
     'Content-Type': 'application/json',
   };
 
-  const responses = http.batch([
-    ['GET', `${BASE_URL}/api/info`, null, { headers }],
-    ['GET', `${BASE_URL}/api/buy/powerbank`, null , { headers }],
-    ['POST', `${BASE_URL}/api/sendCoin`, JSON.stringify({ toUser: resiver.username, amount: 100 }), { headers }],
-    ['GET', `${BASE_URL}/api/info`, null, { headers }],
-  ]);
+  sleep(randomIntBetween(1, 3));
 
-  check(responses[0], { 'Info status 200': (r) => r.status === 200 });
-  check(responses[1], { 'Buy status 200': (r) => r.status === 200 });
-  check(responses[2], { 'SendCoin status 200': (r) => r.status === 200 });
-  check(responses[3], { 'Info status 200': (r) => r.status === 200 });
+  const infoRes = http.get(`${BASE_URL}/api/info`, { headers });
+  check(infoRes, {
+    'Info status 200': (r) => r.status === 200,
+  });
 
-  sleep(0.5);
+  sleep(Math.random(1, 3));
+
+
+  URLS.set(0, http.get(`${BASE_URL}/api/buy/powerbank`, { headers }));
+  URLS.set(1, http.post(`${BASE_URL}/api/sendCoin`, JSON.stringify({ toUser: resiver.username, amount: 100 }) , { headers }));
+
+  let num = randomIntBetween(0, 1);
+  const url = URLS.get(num)
+  check(url, {
+    'Status 200': (r) => r.status === 200,
+  })
+
+  sleep(Math.random(1, 3));
+
+  const final = http.get(`${BASE_URL}/api/info`, { headers });
+  check(final, {
+    'Info status 200': (r) => r.status === 200,
+  });
+
+  sleep(randomIntBetween(1, 5));
 }

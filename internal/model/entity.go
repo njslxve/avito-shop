@@ -1,10 +1,10 @@
 package model
 
 type User struct {
-	ID       string
-	Username string
-	Password string
-	Coins    int64
+	ID           string
+	Username     string
+	PasswordHash string
+	Coins        int64
 }
 
 type Item struct {

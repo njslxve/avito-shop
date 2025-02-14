@@ -33,15 +33,14 @@ func TestBuyItem(t *testing.T) {
 	e.GET("api/buy/:item", handler.BuyItem(logger, mockucase))
 
 	testUser := model.User{
-		Username: "testuser",
-		Password: "testpass",
+		ID: "testID-0000-test-test",
 	}
 
-	testToken, _ := a.GenerateToken(testUser.Username, testUser.Password)
+	testToken, _ := a.GenerateToken(testUser.ID)
 
 	mockucase.On("ValidateItem", mock.Anything).Return(true)
 	mockucase.On("BuyItem", mock.Anything, mock.Anything).Return(nil)
-	mockucase.On("User", mock.Anything, mock.Anything).Return(model.User{}, nil)
+	mockucase.On("UserByID", mock.Anything).Return(model.User{}, nil)
 
 	httpReq := httptest.NewRequest("GET", "/api/buy/powerbank", nil)
 	httpReq.Header.Set(echo.HeaderAuthorization, "Bearer "+testToken)

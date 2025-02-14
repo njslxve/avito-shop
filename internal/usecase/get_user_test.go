@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"testing"
 
 	"github.com/njslxve/avito-shop/internal/mocks"
@@ -16,11 +18,16 @@ func TestUser(t *testing.T) {
 	name := "testname"
 	pass := "testpass"
 
-	mockRepo.On("FindUser", mock.Anything).Return(model.User{Username: name, Password: pass}, nil)
+	hash := sha256.New()
+	hash.Write([]byte(pass))
+
+	passwd := fmt.Sprintf("%x", hash.Sum(nil))
+
+	mockRepo.On("FindUserByName", mock.Anything).Return(model.User{Username: name, PasswordHash: passwd}, nil)
 
 	u := New(nil, nil, &repository.Repository{User: mockRepo})
 
-	user, err := u.User(name, pass)
+	user, err := u.UserByName(name, pass)
 
 	assert.NoError(t, err)
 	assert.Equal(t, name, user.Username)

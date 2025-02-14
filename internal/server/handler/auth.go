@@ -11,8 +11,8 @@ import (
 )
 
 type AuthInterface interface {
-	User(string, string) (model.User, error)
-	Token(model.User) (string, error)
+	UserByName(string, string) (model.User, error)
+	Token(string) (string, error)
 }
 
 func Auth(logger *slog.Logger, ucase AuthInterface) echo.HandlerFunc {
@@ -48,7 +48,7 @@ func Auth(logger *slog.Logger, ucase AuthInterface) echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, e)
 		}
 
-		user, err := ucase.User(req.Username, req.Password)
+		user, err := ucase.UserByName(req.Username, req.Password)
 		if err != nil {
 			logger.Error("failed to get user",
 				slog.String("operation", op),
@@ -62,7 +62,7 @@ func Auth(logger *slog.Logger, ucase AuthInterface) echo.HandlerFunc {
 			return c.JSON(http.StatusInternalServerError, e)
 		}
 
-		token, err := ucase.Token(user)
+		token, err := ucase.Token(user.ID)
 		if err != nil {
 			logger.Error("failed to generate token",
 				slog.String("operation", op),

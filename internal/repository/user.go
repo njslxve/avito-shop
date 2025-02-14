@@ -19,28 +19,31 @@ func newUserRepository(db *pgxpool.Pool) *UserRepository {
 	}
 }
 
-func (ur *UserRepository) Create(user model.User) error {
+func (ur *UserRepository) Create(user model.User) (string, error) {
 	const op = "repository.CreateUser"
 
 	querry := qb.Insert("users").
 		Columns("username", "pass").
-		Values(user.Username, user.Password)
+		Values(user.Username, user.PasswordHash).
+		Suffix("RETURNING id")
 
 	sql, args, err := querry.ToSql()
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = ur.db.Exec(context.Background(), sql, args...)
+	var id string
+
+	err = ur.db.QueryRow(context.Background(), sql, args...).Scan(&id)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	return nil
+	return id, nil
 }
 
-func (ur *UserRepository) FindUser(username string) (model.User, error) {
-	const op = "repository.FindUser"
+func (ur *UserRepository) FindUserByName(username string) (model.User, error) {
+	const op = "repository.FindUserByName"
 
 	var user model.User
 
@@ -55,7 +58,31 @@ func (ur *UserRepository) FindUser(username string) (model.User, error) {
 
 	row := ur.db.QueryRow(context.Background(), sql, args...)
 
-	err = row.Scan(&user.ID, &user.Username, &user.Password, &user.Coins)
+	err = row.Scan(&user.ID, &user.Username, &user.PasswordHash, &user.Coins)
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return user, nil
+}
+
+func (ur *UserRepository) FindUserByID(userID string) (model.User, error) {
+	const op = "repository.FindUserByID"
+
+	var user model.User
+
+	querry := qb.Select("id", "username", "pass", "coins").
+		From("users").
+		Where(sq.Eq{"id": userID})
+
+	sql, args, err := querry.ToSql()
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	row := ur.db.QueryRow(context.Background(), sql, args...)
+
+	err = row.Scan(&user.ID, &user.Username, &user.PasswordHash, &user.Coins)
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}

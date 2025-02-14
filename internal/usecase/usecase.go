@@ -22,14 +22,13 @@ func New(logger *slog.Logger, auth *auth.Auth, repo *repository.Repository) *Use
 	}
 }
 
-func (u *Usecase) Token(user model.User) (string, error) {
-	token, err := u.auth.GenerateToken(user.Username, user.Password)
+func (u *Usecase) Token(userID string) (string, error) {
+	token, err := u.auth.GenerateToken(userID)
 	if err != nil {
 		u.logger.Error("failed to generate token",
-			slog.String("username", user.Username),
 			slog.String("error", err.Error()),
 		)
-		return "", err
+		return "", err //TODO
 	}
 
 	return token, nil

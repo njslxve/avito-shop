@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/config"
+	"github.com/njslxve/avito-shop/internal/model"
 )
 
 type Auth struct {
@@ -15,8 +17,7 @@ type Auth struct {
 }
 
 type Claims struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	UserID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -26,10 +27,9 @@ func New(cfg *config.Config) *Auth {
 	}
 }
 
-func (a *Auth) GenerateToken(username, password string) (string, error) {
+func (a *Auth) GenerateToken(userID string) (string, error) {
 	claims := Claims{
-		Username: username,
-		Password: password,
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 		},
@@ -65,13 +65,19 @@ func JWTMiddleware(cfg *config.Config) echo.MiddlewareFunc {
 }
 
 func jwtConfig(cfg *config.Config) echojwt.Config {
+	e := model.Error{
+		Errors: "Ошбика авторизации",
+	}
+
 	return echojwt.Config{
 		SigningKey: []byte(cfg.JWTSecret),
 		ContextKey: "token",
 		ErrorHandler: func(c echo.Context, err error) error {
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"errors": "Ошбика авторизации",
-			})
+			slog.Info("failed to validate token",
+				slog.String("error", err.Error()),
+			)
+
+			return c.JSON(http.StatusUnauthorized, e)
 		},
 	}
 }

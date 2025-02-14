@@ -20,8 +20,8 @@ type Error struct {
 
 type InfoResponse struct {
 	Coins       int64      `json:"coins"`
-	Inventory   []ItemInfo `json:"inventory,omitempty"`
-	CoinHistory History    `json:"coinHistory,omitempty"`
+	Inventory   []ItemInfo `json:"inventory"`
+	CoinHistory History    `json:"coinHistory"`
 }
 
 type ItemInfo struct {

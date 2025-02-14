@@ -7,8 +7,8 @@ import (
 	"github.com/njslxve/avito-shop/internal/validation"
 )
 
-func (u *Usecase) User(username, password string) (model.User, error) { //get or create
-	user, err := u.repo.User.FindUser(username)
+func (u *Usecase) UserByName(username, password string) (model.User, error) { //get or create
+	user, err := u.repo.User.FindUserByName(username)
 	if err != nil {
 		user, err = u.createUser(username, password)
 		if err != nil {
@@ -20,6 +20,15 @@ func (u *Usecase) User(username, password string) (model.User, error) { //get or
 
 	if !validation.ValidatePassword(user, password) {
 		return model.User{}, fmt.Errorf("invalid password") //TODO
+	}
+
+	return user, nil
+}
+
+func (u *Usecase) UserByID(useerID string) (model.User, error) {
+	user, err := u.repo.User.FindUserByID(useerID)
+	if err != nil {
+		return model.User{}, err //TODO
 	}
 
 	return user, nil

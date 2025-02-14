@@ -11,7 +11,7 @@ import (
 )
 
 type SendCoinInterface interface {
-	User(username, password string) (model.User, error)
+	UserByID(userID string) (model.User, error)
 	SendCoin(model.User, string, int64) error
 }
 
@@ -21,25 +21,20 @@ func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 
 		token, ok := c.Get("token").(*jwt.Token)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token1") //TODO
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token2") //TODO
 		}
 
-		username, ok := claims["username"].(string)
+		userID, ok := claims["user_id"].(string)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token3") //TODO
 		}
 
-		password, ok := claims["password"].(string)
-		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
-		}
-
-		sender, err := ucase.User(username, password)
+		sender, err := ucase.UserByID(userID)
 		if err != nil {
 			e := model.Error{
 				Errors: ErrInternal,

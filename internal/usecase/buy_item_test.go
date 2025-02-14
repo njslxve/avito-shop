@@ -17,9 +17,9 @@ func TestBuyItem(t *testing.T) {
 	mockItemRepo := new(mocks.MockItemRepository)
 
 	testuser := model.User{
-		Username: "testuser",
-		Password: "testpass",
-		Coins:    100,
+		Username:     "testuser",
+		PasswordHash: "testpassHash",
+		Coins:        100,
 	}
 
 	testitem := "testitem"

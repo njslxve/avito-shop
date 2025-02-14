@@ -16,7 +16,7 @@ func (u *Usecase) SendCoin(sender model.User, receiverUsername string, amount in
 		return err
 	}
 
-	reciver, err := u.repo.User.FindUser(receiverUsername)
+	reciver, err := u.repo.User.FindUserByName(receiverUsername)
 	if err != nil {
 		return err
 	}

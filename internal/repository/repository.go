@@ -14,13 +14,14 @@ type Repository struct {
 }
 
 type UserRepositoryIterface interface {
-	Create(user model.User) error
-	FindUser(username string) (model.User, error)
-	UpdateUserCoins(user model.User, amount int64) error
+	Create(model.User) (string, error)
+	FindUserByName(string) (model.User, error)
+	FindUserByID(string) (model.User, error)
+	UpdateUserCoins(model.User, int64) error
 }
 
 type ItemRepositoryInterface interface {
-	FindItem(itemname string) (model.Item, error)
+	FindItem(string) (model.Item, error)
 }
 
 type CoinRepositoryInterface interface {

@@ -10,7 +10,7 @@ import (
 )
 
 type InfoInterface interface {
-	User(string, string) (model.User, error)
+	UserByID(string) (model.User, error)
 	Info(model.User) (model.InfoResponse, error)
 }
 
@@ -28,17 +28,12 @@ func Info(logger *slog.Logger, ucase InfoInterface) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
 		}
 
-		username, ok := claims["username"].(string)
+		userID, ok := claims["user_id"].(string)
 		if !ok {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
 		}
 
-		password, ok := claims["password"].(string)
-		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
-		}
-
-		user, err := ucase.User(username, password)
+		user, err := ucase.UserByID(userID)
 		if err != nil {
 			e := model.Error{
 				Errors: ErrInternal,

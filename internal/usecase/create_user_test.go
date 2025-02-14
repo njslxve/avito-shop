@@ -15,12 +15,13 @@ func TestCreateUser(t *testing.T) {
 	name := "testname"
 	pass := "testpass"
 
-	mockRepo.On("Create", mock.Anything).Return(nil)
+	mockRepo.On("Create", mock.Anything).Return("123", nil)
 
 	u := New(nil, nil, &repository.Repository{User: mockRepo})
 
 	user, err := u.createUser(name, pass)
 
 	assert.NoError(t, err)
+	assert.Equal(t, "123", user.ID)
 	assert.Equal(t, name, user.Username)
 }

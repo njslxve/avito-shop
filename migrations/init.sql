@@ -9,9 +9,11 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS items (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  type TEXT NOT NULL,
+  type TEXT UNIQUE NOT NULL,
   price BIGINT NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS items_type_idx ON items(type);
 
 CREATE TABLE IF NOT EXISTS item_transactions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

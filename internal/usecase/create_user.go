@@ -1,18 +1,22 @@
 package usecase
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"log/slog"
 
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
 func (u *Usecase) createUser(username, password string) (model.User, error) {
+	pwd := passwordHash(password)
+
 	user := model.User{
-		Username: username,
-		Password: password,
+		Username:     username,
+		PasswordHash: pwd,
 	}
 
-	err := u.repo.User.Create(user)
+	id, err := u.repo.User.Create(user)
 	if err != nil {
 		u.logger.Error("failed to create user",
 			slog.String("username", username),
@@ -20,5 +24,14 @@ func (u *Usecase) createUser(username, password string) (model.User, error) {
 		)
 	}
 
+	user.ID = id
+
 	return user, err
+}
+
+func passwordHash(password string) string {
+	hash := sha256.New()
+	hash.Write([]byte(password))
+
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }

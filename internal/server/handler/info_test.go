@@ -33,14 +33,12 @@ func TestInfo(t *testing.T) {
 	e.GET("api/info", handler.Info(logger, mockucase))
 
 	testUser := model.User{
-		Username: "testuser",
-		Password: "testpass",
-		Coins:    1000,
+		ID: "testID-0000-test-test",
 	}
 
-	testToken, _ := a.GenerateToken(testUser.Username, testUser.Password)
+	testToken, _ := a.GenerateToken(testUser.ID)
 
-	mockucase.On("User", mock.Anything, mock.Anything).Return(testUser, nil)
+	mockucase.On("UserByID", mock.Anything).Return(testUser, nil)
 	mockucase.On("Info", mock.Anything).Return(model.InfoResponse{
 		Coins: 1000,
 	}, nil)

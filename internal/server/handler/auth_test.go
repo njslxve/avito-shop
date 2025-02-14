@@ -30,7 +30,7 @@ func TestAuth(t *testing.T) {
 		Password: "password",
 	}
 
-	mockucase.On("User", mock.Anything, mock.Anything).Return(model.User{}, nil)
+	mockucase.On("UserByName", mock.Anything, mock.Anything).Return(model.User{}, nil)
 	mockucase.On("Token", mock.Anything).Return("token", nil)
 
 	reqBody, _ := json.Marshal(req)

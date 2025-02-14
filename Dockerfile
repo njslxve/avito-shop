@@ -5,8 +5,7 @@ ENV GOPROXY=https://goproxy.io,direct
 WORKDIR /app
 COPY . .
 
-RUN go build -o ./bin/avito-shop ./cmd/avito-shop/main.go \
-    && go clean -cache -modcache
+RUN go build -o ./bin/avito-shop ./cmd/avito-shop/main.go
 
 FROM alpine:latest
 

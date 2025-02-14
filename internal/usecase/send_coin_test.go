@@ -15,9 +15,9 @@ func TestSendCoin(t *testing.T) {
 	mockUserRepo := new(mocks.MockUserRepository)
 
 	testuser := model.User{
-		Username: "testuser",
-		Password: "testpass",
-		Coins:    1000,
+		Username:     "testuser",
+		PasswordHash: "testpass",
+		Coins:        1000,
 	}
 
 	testResiver := "testreceiver"
@@ -28,10 +28,10 @@ func TestSendCoin(t *testing.T) {
 		User: mockUserRepo,
 	})
 
-	mockUserRepo.On("FindUser", testResiver).Return(model.User{
-		Username: testResiver,
-		Password: "tstpass",
-		Coins:    100,
+	mockUserRepo.On("FindUserByName", mock.Anything).Return(model.User{
+		Username:     testResiver,
+		PasswordHash: "tstpass",
+		Coins:        100,
 	}, nil)
 
 	mockUserRepo.On("UpdateUserCoins", mock.Anything, mock.Anything).Return(nil)
