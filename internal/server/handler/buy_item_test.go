@@ -7,11 +7,11 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/mocks"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/server/handler"
+	"github.com/njslxve/avito-shop/internal/service/auth"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -23,12 +23,12 @@ func TestBuyItem(t *testing.T) {
 		JWTSecret: "secret",
 	}
 
-	a := auth.New(cfg)
+	a := auth.New(cfg, logger, nil)
 
 	e := echo.New()
 	e.Use(auth.JWTMiddleware(cfg))
 
-	mockucase := new(mocks.MockUsecase)
+	mockucase := new(mocks.MockShopService)
 
 	e.GET("api/buy/:item", handler.BuyItem(logger, mockucase))
 
@@ -40,7 +40,7 @@ func TestBuyItem(t *testing.T) {
 
 	mockucase.On("ValidateItem", mock.Anything).Return(true)
 	mockucase.On("BuyItem", mock.Anything, mock.Anything).Return(nil)
-	mockucase.On("UserByID", mock.Anything).Return(model.User{}, nil)
+	mockucase.On("User", mock.Anything).Return(model.User{}, nil)
 
 	httpReq := httptest.NewRequest("GET", "/api/buy/powerbank", nil)
 	httpReq.Header.Set(echo.HeaderAuthorization, "Bearer "+testToken)

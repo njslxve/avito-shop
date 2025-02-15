@@ -1,4 +1,4 @@
-package usecase
+package shop
 
 import (
 	"crypto/sha256"
@@ -23,11 +23,11 @@ func TestUser(t *testing.T) {
 
 	passwd := fmt.Sprintf("%x", hash.Sum(nil))
 
-	mockRepo.On("FindUserByName", mock.Anything).Return(model.User{Username: name, PasswordHash: passwd}, nil)
+	mockRepo.On("FindUserByID", mock.Anything).Return(model.User{Username: name, PasswordHash: passwd}, nil)
 
-	u := New(nil, nil, &repository.Repository{User: mockRepo})
+	u := New(nil, &repository.Repository{User: mockRepo})
 
-	user, err := u.UserByName(name, pass)
+	user, err := u.User(name)
 
 	assert.NoError(t, err)
 	assert.Equal(t, name, user.Username)

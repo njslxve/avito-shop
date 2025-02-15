@@ -10,10 +10,13 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/model"
+	"github.com/njslxve/avito-shop/internal/repository"
 )
 
 type Auth struct {
-	cfg *config.Config
+	cfg    *config.Config
+	logger *slog.Logger
+	repo   *repository.Repository
 }
 
 type Claims struct {
@@ -21,9 +24,11 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func New(cfg *config.Config) *Auth {
+func New(cfg *config.Config, logger *slog.Logger, repo *repository.Repository) *Auth {
 	return &Auth{
-		cfg: cfg,
+		cfg:    cfg,
+		logger: logger,
+		repo:   repo,
 	}
 }
 

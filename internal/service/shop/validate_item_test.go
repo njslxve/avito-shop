@@ -1,4 +1,4 @@
-package usecase
+package shop
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func TestValidateItemHappy(t *testing.T) {
 		Price: 10,
 	}, nil)
 
-	u := New(nil, nil, &repository.Repository{
+	u := New(nil, &repository.Repository{
 		Item: mockItemRepo,
 	})
 
@@ -42,7 +42,7 @@ func TestValidateItemBad(t *testing.T) {
 
 	mockItemRepo.On("FindItem", mock.Anything).Return(model.Item{}, e)
 
-	u := New(logger, nil, &repository.Repository{
+	u := New(logger, &repository.Repository{
 		Item: mockItemRepo,
 	})
 

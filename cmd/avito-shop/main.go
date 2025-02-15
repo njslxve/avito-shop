@@ -4,12 +4,13 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/client/postgres"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/repository"
 	"github.com/njslxve/avito-shop/internal/server"
-	"github.com/njslxve/avito-shop/internal/usecase"
+	"github.com/njslxve/avito-shop/internal/service"
+	"github.com/njslxve/avito-shop/internal/service/auth"
+	"github.com/njslxve/avito-shop/internal/service/shop"
 	"github.com/njslxve/avito-shop/pkg/logger"
 )
 
@@ -35,9 +36,10 @@ func main() {
 
 	repo := repository.New(client)
 
-	authService := auth.New(cfg)
+	authService := auth.New(cfg, lg, repo)
+	shopService := shop.New(lg, repo)
 
-	ucase := usecase.New(lg, authService, repo)
+	ucase := service.New(authService, shopService)
 
 	srv := server.New(cfg, lg, ucase)
 	srv.Run()

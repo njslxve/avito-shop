@@ -1,37 +1,22 @@
-package usecase
+package shop
 
 import (
 	"log/slog"
 
-	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/repository"
 )
 
-type Usecase struct {
+type ShopService struct {
 	logger *slog.Logger
-	auth   *auth.Auth
 	repo   *repository.Repository
 }
 
-func New(logger *slog.Logger, auth *auth.Auth, repo *repository.Repository) *Usecase {
-	return &Usecase{
+func New(logger *slog.Logger, repo *repository.Repository) *ShopService {
+	return &ShopService{
 		logger: logger,
-		auth:   auth,
 		repo:   repo,
 	}
-}
-
-func (u *Usecase) Token(userID string) (string, error) {
-	token, err := u.auth.GenerateToken(userID)
-	if err != nil {
-		u.logger.Error("failed to generate token",
-			slog.String("error", err.Error()),
-		)
-		return "", err //TODO
-	}
-
-	return token, nil
 }
 
 func aggregatePurshases(purshases []string) []model.ItemInfo {

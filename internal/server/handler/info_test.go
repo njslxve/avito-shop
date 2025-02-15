@@ -7,11 +7,11 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/mocks"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/server/handler"
+	"github.com/njslxve/avito-shop/internal/service/auth"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -23,12 +23,12 @@ func TestInfo(t *testing.T) {
 		JWTSecret: "secret",
 	}
 
-	a := auth.New(cfg)
+	a := auth.New(cfg, logger, nil)
 
 	e := echo.New()
 	e.Use(auth.JWTMiddleware(cfg))
 
-	mockucase := new(mocks.MockUsecase)
+	mockucase := new(mocks.MockShopService)
 
 	e.GET("api/info", handler.Info(logger, mockucase))
 
@@ -38,7 +38,7 @@ func TestInfo(t *testing.T) {
 
 	testToken, _ := a.GenerateToken(testUser.ID)
 
-	mockucase.On("UserByID", mock.Anything).Return(testUser, nil)
+	mockucase.On("User", mock.Anything).Return(testUser, nil)
 	mockucase.On("Info", mock.Anything).Return(model.InfoResponse{
 		Coins: 1000,
 	}, nil)

@@ -1,4 +1,4 @@
-package usecase
+package shop
 
 import (
 	"testing"
@@ -20,7 +20,7 @@ func TestInfo(t *testing.T) {
 		Coins:        100,
 	}
 
-	u := New(nil, nil, &repository.Repository{
+	u := New(nil, &repository.Repository{
 		Transaction: mockTransRepo,
 		Coin:        mockCoinRepo,
 	})

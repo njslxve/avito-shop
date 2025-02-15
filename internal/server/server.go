@@ -11,23 +11,23 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/server/handler"
-	"github.com/njslxve/avito-shop/internal/usecase"
+	"github.com/njslxve/avito-shop/internal/service"
+	"github.com/njslxve/avito-shop/internal/service/auth"
 )
 
 type Server struct {
-	cfg    *config.Config
-	logger *slog.Logger
-	ucase  *usecase.Usecase
+	cfg     *config.Config
+	logger  *slog.Logger
+	service *service.Service
 }
 
-func New(cfg *config.Config, logger *slog.Logger, ucase *usecase.Usecase) *Server {
+func New(cfg *config.Config, logger *slog.Logger, service *service.Service) *Server {
 	return &Server{
-		cfg:    cfg,
-		logger: logger,
-		ucase:  ucase,
+		cfg:     cfg,
+		logger:  logger,
+		service: service,
 	}
 }
 
@@ -40,12 +40,12 @@ func (s *Server) Run() {
 		Timeout: 30 * time.Second,
 	}))
 
-	e.POST("/api/auth", handler.Auth(s.logger, s.ucase))
+	e.POST("/api/auth", handler.Auth(s.logger, s.service.Auth))
 
 	g := e.Group("/api", auth.JWTMiddleware(s.cfg))
-	g.GET("/info", handler.Info(s.logger, s.ucase))
-	g.GET("/buy/:item", handler.BuyItem(s.logger, s.ucase))
-	g.POST("/sendCoin", handler.SendCoin(s.logger, s.ucase))
+	g.GET("/info", handler.Info(s.logger, s.service.Shop))
+	g.GET("/buy/:item", handler.BuyItem(s.logger, s.service.Shop))
+	g.POST("/sendCoin", handler.SendCoin(s.logger, s.service.Shop))
 
 	go func() {
 		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {

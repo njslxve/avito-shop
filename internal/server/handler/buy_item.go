@@ -10,7 +10,7 @@ import (
 )
 
 type ByuItemInterface interface {
-	UserByID(string) (model.User, error)
+	User(string) (model.User, error)
 	ValidateItem(string) bool
 	BuyItem(model.User, string) error
 }
@@ -35,7 +35,7 @@ func BuyItem(logger *slog.Logger, ucase ByuItemInterface) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid token3")
 		}
 
-		user, err := ucase.UserByID(userID)
+		user, err := ucase.User(userID)
 		if err != nil {
 			e := model.Error{
 				Errors: ErrInternal,

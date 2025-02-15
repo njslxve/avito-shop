@@ -1,4 +1,4 @@
-package usecase
+package shop
 
 import (
 	"testing"
@@ -23,7 +23,7 @@ func TestSendCoin(t *testing.T) {
 	testResiver := "testreceiver"
 	var testAmount int64 = 200
 
-	u := New(nil, nil, &repository.Repository{
+	u := New(nil, &repository.Repository{
 		Coin: mockCoinRepo,
 		User: mockUserRepo,
 	})

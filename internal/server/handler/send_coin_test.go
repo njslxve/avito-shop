@@ -9,11 +9,11 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"github.com/njslxve/avito-shop/internal/auth"
 	"github.com/njslxve/avito-shop/internal/config"
 	"github.com/njslxve/avito-shop/internal/mocks"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/server/handler"
+	"github.com/njslxve/avito-shop/internal/service/auth"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,12 +25,12 @@ func TestSendCoin(t *testing.T) {
 		JWTSecret: "secret",
 	}
 
-	a := auth.New(cfg)
+	a := auth.New(cfg, logger, nil)
 
 	e := echo.New()
 	e.Use(auth.JWTMiddleware(cfg))
 
-	mockucase := new(mocks.MockUsecase)
+	mockucase := new(mocks.MockShopService)
 
 	e.POST("api/sendCoin", handler.SendCoin(logger, mockucase))
 
@@ -48,7 +48,7 @@ func TestSendCoin(t *testing.T) {
 
 	testToken, _ := a.GenerateToken(testUser.ID)
 
-	mockucase.On("UserByID", mock.Anything).Return(testUser, nil)
+	mockucase.On("User", mock.Anything).Return(testUser, nil)
 	mockucase.On("SendCoin", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	httpReq := httptest.NewRequest("POST", "/api/sendCoin", bytes.NewBuffer(reqBody))

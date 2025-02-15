@@ -11,7 +11,7 @@ import (
 )
 
 type SendCoinInterface interface {
-	UserByID(userID string) (model.User, error)
+	User(userID string) (model.User, error)
 	SendCoin(model.User, string, int64) error
 }
 
@@ -34,7 +34,7 @@ func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid token3") //TODO
 		}
 
-		sender, err := ucase.UserByID(userID)
+		sender, err := ucase.User(userID)
 		if err != nil {
 			e := model.Error{
 				Errors: ErrInternal,

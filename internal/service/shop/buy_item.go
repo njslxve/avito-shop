@@ -1,4 +1,4 @@
-package usecase
+package shop
 
 import (
 	"fmt"
@@ -7,10 +7,10 @@ import (
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
-func (u *Usecase) BuyItem(user model.User, itemname string) error {
-	item, err := u.repo.Item.FindItem(itemname)
+func (ss *ShopService) BuyItem(user model.User, itemname string) error {
+	item, err := ss.repo.Item.FindItem(itemname)
 	if err != nil {
-		u.logger.Error("failed to find item",
+		ss.logger.Error("failed to find item",
 			slog.String("item", itemname),
 			slog.String("error", err.Error()),
 		)
@@ -20,25 +20,25 @@ func (u *Usecase) BuyItem(user model.User, itemname string) error {
 		return fmt.Errorf("not enough coins")
 	}
 
-	err = u.repo.User.UpdateUserCoins(user, -item.Price)
+	err = ss.repo.User.UpdateUserCoins(user, -item.Price)
 	if err != nil {
-		u.logger.Error("failed to update user coins",
+		ss.logger.Error("failed to update user coins",
 			slog.String("username", user.Username),
 			slog.String("error", err.Error()),
 		)
 	}
 
-	err = u.repo.Transaction.Create(user.ID, item.ID)
+	err = ss.repo.Transaction.Create(user.ID, item.ID)
 	if err != nil {
-		u.logger.Error("failed to create transaction",
+		ss.logger.Error("failed to create transaction",
 			slog.String("username", user.Username),
 			slog.String("item", itemname),
 			slog.String("error", err.Error()),
 		)
 
-		err = u.repo.User.UpdateUserCoins(user, item.Price)
+		err = ss.repo.User.UpdateUserCoins(user, item.Price)
 		if err != nil {
-			u.logger.Error("failed to refund user coins",
+			ss.logger.Error("failed to refund user coins",
 				slog.String("username", user.Username),
 				slog.String("error", err.Error()),
 			)
