@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/njslxve/avito-shop/internal/apperror"
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
@@ -38,7 +39,7 @@ func BuyItem(logger *slog.Logger, ucase ByuItemInterface) echo.HandlerFunc {
 		user, err := ucase.User(userID)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrInternal,
 			}
 
 			logger.Error("failed to find user",
@@ -51,7 +52,7 @@ func BuyItem(logger *slog.Logger, ucase ByuItemInterface) echo.HandlerFunc {
 
 		if !ucase.ValidateItem(item) {
 			e := model.Error{
-				Errors: ErrBadRequest,
+				Errors: apperror.ErrBadRequest,
 			}
 
 			logger.Error("failed to validate item",
@@ -65,7 +66,7 @@ func BuyItem(logger *slog.Logger, ucase ByuItemInterface) echo.HandlerFunc {
 		err = ucase.BuyItem(user, item)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrInternal,
 			}
 
 			logger.Error("failed to buy item",

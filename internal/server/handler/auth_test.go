@@ -3,6 +3,7 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +17,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestAuth(t *testing.T) {
+func TestAuthGood(t *testing.T) {
 	logger := slog.Default()
 
 	e := echo.New()
@@ -46,6 +47,70 @@ func TestAuth(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.JSONEq(t, `{"token":"token"}`, rr.Body.String())
+
+	mockucase.AssertExpectations(t)
+}
+
+func TestAuthBadRequest(t *testing.T) {
+	logger := slog.Default()
+
+	e := echo.New()
+
+	mockucase := new(mocks.MockAuthService)
+
+	h := handler.Auth(logger, mockucase)
+
+	req := model.AuthRequest{
+		Username: "username",
+	}
+
+	reqBody, _ := json.Marshal(req)
+	httpReq := httptest.NewRequest("POST", "/", bytes.NewBuffer(reqBody))
+
+	rr := httptest.NewRecorder()
+
+	c := e.NewContext(httpReq, rr)
+	c.SetPath("/api/auth")
+
+	err := h(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+
+	mockucase.AssertExpectations(t)
+}
+
+func TestAuthInternalError(t *testing.T) {
+	logger := slog.Default()
+
+	e := echo.New()
+
+	mockucase := new(mocks.MockAuthService)
+
+	h := handler.Auth(logger, mockucase)
+
+	req := model.AuthRequest{
+		Username: "username",
+		Password: "password",
+	}
+
+	testError := fmt.Errorf("internal error")
+
+	mockucase.On("User", mock.Anything, mock.Anything).Return(model.User{}, testError)
+
+	reqBody, _ := json.Marshal(req)
+
+	httpReq := httptest.NewRequest("POST", "/", bytes.NewBuffer(reqBody))
+
+	rr := httptest.NewRecorder()
+
+	c := e.NewContext(httpReq, rr)
+	c.SetPath("/api/auth")
+
+	err := h(c)
+
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
 	mockucase.AssertExpectations(t)
 }

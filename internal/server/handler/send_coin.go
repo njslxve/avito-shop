@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/njslxve/avito-shop/internal/apperror"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/validation"
 )
@@ -37,7 +38,7 @@ func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 		sender, err := ucase.User(userID)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrInternal,
 			}
 
 			logger.Error("failed to get user",
@@ -52,7 +53,7 @@ func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 
 		if err := c.Bind(&req); err != nil {
 			e := model.Error{
-				Errors: ErrBadRequest,
+				Errors: apperror.ErrBadRequest,
 			}
 
 			logger.Error("failed to bind request body",
@@ -66,7 +67,7 @@ func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 		err = validation.ValidateSendCoinRequest(req)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrBadRequest,
+				Errors: apperror.ErrBadRequest,
 			}
 
 			logger.Error("failed to validate request",
@@ -80,7 +81,7 @@ func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 		err = ucase.SendCoin(sender, req.ToUser, req.Amount)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrInternal,
 			}
 
 			logger.Error("failed to send coin",

@@ -4,10 +4,10 @@ import { randomString, randomIntBetween } from 'https://jslib.k6.io/k6-utils/1.4
 
 export let options = {
   stages: [
-    { duration: '30s', target: 100 },
-    { duration: '30s', target: 250 },
-    { duration: '30s', target: 500 },
-    { duration: '1m', target: 500 },
+    { duration: '30s', target: 350 }, // 100
+    { duration: '30s', target: 750 }, // 200
+    { duration: '30s', target: 1510 }, // 500
+    { duration: '3m', target: 1510 }, // 500
     { duration: '30s', target: 0 },
   ],
   thresholds: {

@@ -1,4 +1,4 @@
-package handler
+package apperror
 
 const (
 	ErrBadRequest = "Неверный формат запроса или его параметры"

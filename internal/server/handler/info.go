@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/njslxve/avito-shop/internal/apperror"
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
@@ -20,7 +21,7 @@ func Info(logger *slog.Logger, ucase InfoInterface) echo.HandlerFunc {
 
 		token, ok := c.Get("token").(*jwt.Token)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+			return echo.NewHTTPError(http.StatusBadRequest, "invalid token") //TODO
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
@@ -36,7 +37,7 @@ func Info(logger *slog.Logger, ucase InfoInterface) echo.HandlerFunc {
 		user, err := ucase.User(userID)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrInternal,
 			}
 
 			logger.Error("failed to get user",
@@ -50,7 +51,7 @@ func Info(logger *slog.Logger, ucase InfoInterface) echo.HandlerFunc {
 		userInfo, err := ucase.Info(user)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrInternal,
 			}
 
 			logger.Error("failed to get info",

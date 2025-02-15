@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS user_transactions (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS user_transactions_from_user_id_idx ON user_transactions(from_user_id);
+CREATE INDEX IF NOT EXISTS user_transactions_to_user_id_idx ON user_transactions(to_user_id);
 
 INSERT INTO items (type, price) VALUES
   ('t-shirt', 80),

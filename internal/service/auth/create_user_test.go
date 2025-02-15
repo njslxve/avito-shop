@@ -1,19 +1,27 @@
 package auth
 
-// func TestCreateUser(t *testing.T) {
-// 	mockRepo := new(mocks.MockUserRepository)
+import (
+	"testing"
 
-// 	name := "testname"
-// 	pass := "testpass"
+	"github.com/njslxve/avito-shop/internal/mocks"
+	"github.com/njslxve/avito-shop/internal/repository"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+)
 
-// 	mockRepo.On("Create", mock.Anything).Return("123", nil)
+func TestCreateUser(t *testing.T) {
+	mockRepo := new(mocks.MockUserRepository)
 
-// 	u := New(nil, &repository.Repository{User: mockRepo})
+	name := "testname"
+	pass := "testpass"
 
-// 	user, err := u.createUser(name, pass)
+	mockRepo.On("Create", mock.Anything).Return("123", nil)
 
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, "123", user.ID)
-// 	assert.Equal(t, name, user.Username)
-// }
-//TODO
+	u := New(nil, nil, &repository.Repository{User: mockRepo})
+
+	user, err := u.createUser(name, pass)
+
+	assert.NoError(t, err)
+	assert.Equal(t, "123", user.ID)
+	assert.Equal(t, name, user.Username)
+}

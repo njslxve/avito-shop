@@ -12,4 +12,12 @@ load:
 
 .PHONY: test
 test:
-	@go test -coverpkg=./internal/... -coverprofile=coverage.out ./... && go tool cover -func=coverage.out
+	@go test -coverpkg=./internal/... -coverprofile=coverage.out ./internal/... && go tool cover -func=coverage.out
+
+.PHONY: e2eup
+e2eup:
+	@cd tests && docker compose up -d && go test ./e2e/...
+
+.PHONY: e2edown
+e2edown:
+	@cd tests && docker compose down

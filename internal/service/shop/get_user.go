@@ -4,15 +4,11 @@ import (
 	"github.com/njslxve/avito-shop/internal/model"
 )
 
-func (ss *ShopService) User(userID string) (model.User, error) { //get or create
+func (ss *ShopService) User(userID string) (model.User, error) {
 	user, err := ss.repo.User.FindUserByID(userID)
 	if err != nil {
-		return user, nil
+		return model.User{}, err
 	}
 
-	// if !validation.ValidatePassword(user, password) {
-	// 	return model.User{}, fmt.Errorf("invalid password") //TODO
-	// }
-
-	return user, nil
+	return user, nil //TODO
 }

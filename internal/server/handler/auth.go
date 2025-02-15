@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/njslxve/avito-shop/internal/apperror"
 	"github.com/njslxve/avito-shop/internal/model"
 	"github.com/njslxve/avito-shop/internal/validation"
 )
@@ -23,7 +24,7 @@ func Auth(logger *slog.Logger, auth AuthInterface) echo.HandlerFunc {
 
 		if err := json.NewDecoder(c.Request().Body).Decode(&req); err != nil {
 			e := model.Error{
-				Errors: ErrBadRequest,
+				Errors: apperror.ErrBadRequest,
 			}
 
 			logger.Error("failed to decode request body",
@@ -37,7 +38,7 @@ func Auth(logger *slog.Logger, auth AuthInterface) echo.HandlerFunc {
 		err := validation.ValdateAuthRequest(req)
 		if err != nil {
 			e := model.Error{
-				Errors: ErrBadRequest,
+				Errors: apperror.ErrBadRequest,
 			}
 
 			logger.Error("failed to validate request",
@@ -56,7 +57,7 @@ func Auth(logger *slog.Logger, auth AuthInterface) echo.HandlerFunc {
 			)
 
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrInternal,
 			}
 
 			return c.JSON(http.StatusInternalServerError, e)
@@ -70,7 +71,7 @@ func Auth(logger *slog.Logger, auth AuthInterface) echo.HandlerFunc {
 			)
 
 			e := model.Error{
-				Errors: ErrInternal,
+				Errors: apperror.ErrBadRequest,
 			}
 
 			return c.JSON(http.StatusInternalServerError, e)
