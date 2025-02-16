@@ -19,7 +19,7 @@ func (a *Auth) User(username, password string) (model.User, error) { //get or cr
 	}
 
 	if !validation.ValidatePassword(user, password) {
-		return model.User{}, fmt.Errorf("invalid password") //TODO
+		return model.User{}, fmt.Errorf("invalid password")
 	}
 
 	return user, nil

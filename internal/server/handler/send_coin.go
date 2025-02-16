@@ -22,17 +22,29 @@ func SendCoin(logger *slog.Logger, ucase SendCoinInterface) echo.HandlerFunc {
 
 		token, ok := c.Get("token").(*jwt.Token)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token1") //TODO
+			logger.Error("invalid token",
+				slog.String("operation", op),
+			)
+
+			return echo.NewHTTPError(http.StatusBadRequest, apperror.ErrBadRequestToken)
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token2") //TODO
+			logger.Error("invalid token",
+				slog.String("operation", op),
+			)
+
+			return echo.NewHTTPError(http.StatusBadRequest, apperror.ErrBadRequestToken)
 		}
 
 		userID, ok := claims["user_id"].(string)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token3") //TODO
+			logger.Error("invalid token",
+				slog.String("operation", op),
+			)
+
+			return echo.NewHTTPError(http.StatusBadRequest, apperror.ErrBadRequestToken)
 		}
 
 		sender, err := ucase.User(userID)

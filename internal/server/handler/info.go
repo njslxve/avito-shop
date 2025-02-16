@@ -21,17 +21,29 @@ func Info(logger *slog.Logger, ucase InfoInterface) echo.HandlerFunc {
 
 		token, ok := c.Get("token").(*jwt.Token)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token") //TODO
+			logger.Error("invalid token",
+				slog.String("operation", op),
+			)
+
+			return echo.NewHTTPError(http.StatusBadRequest, apperror.ErrBadRequestToken)
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+			logger.Error("invalid token",
+				slog.String("operation", op),
+			)
+
+			return echo.NewHTTPError(http.StatusBadRequest, apperror.ErrBadRequestToken)
 		}
 
 		userID, ok := claims["user_id"].(string)
 		if !ok {
-			return echo.NewHTTPError(http.StatusBadRequest, "invalid token")
+			logger.Error("invalid token",
+				slog.String("operation", op),
+			)
+
+			return echo.NewHTTPError(http.StatusBadRequest, apperror.ErrBadRequestToken)
 		}
 
 		user, err := ucase.User(userID)

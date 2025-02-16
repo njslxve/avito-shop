@@ -16,7 +16,7 @@ test:
 
 .PHONY: e2eup
 e2eup:
-	@cd tests && docker compose up -d && go test ./e2e/...
+	@cd tests && docker compose up -d
 
 .PHONY: e2edown
 e2edown:

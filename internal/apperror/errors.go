@@ -1,6 +1,7 @@
 package apperror
 
 const (
-	ErrBadRequest = "Неверный формат запроса или его параметры"
-	ErrInternal   = "Внутренняя ошибка сервера"
+	ErrBadRequestToken = "Невалидный токен"
+	ErrInternal        = "Внутренняя ошибка сервера"
+	ErrBadRequest      = "Неверный формат запроса"
 )

@@ -1,12 +1,23 @@
 package shop
 
-import "github.com/njslxve/avito-shop/internal/model"
+import (
+	"log/slog"
+
+	"github.com/njslxve/avito-shop/internal/model"
+)
 
 func (ss *ShopService) Info(user model.User) (model.InfoResponse, error) {
+	const op = "shop.Info"
+
 	var infoResponse model.InfoResponse
 
 	purshases, err := ss.repo.Transaction.UserHistory(user.ID)
 	if err != nil {
+		ss.logger.Error("failed to get user history",
+			slog.String("operation", op),
+			slog.String("error", err.Error()),
+		)
+
 		return model.InfoResponse{}, err
 	}
 
@@ -14,11 +25,21 @@ func (ss *ShopService) Info(user model.User) (model.InfoResponse, error) {
 
 	senderHist, err := ss.repo.Coin.SenderHistory(user.ID)
 	if err != nil {
+		ss.logger.Error("failed to get sender history",
+			slog.String("operation", op),
+			slog.String("error", err.Error()),
+		)
+
 		return model.InfoResponse{}, err
 	}
 
 	receiverHist, err := ss.repo.Coin.ReceiverHistory(user.ID)
 	if err != nil {
+		ss.logger.Error("failed to get receiver history",
+			slog.String("operation", op),
+			slog.String("error", err.Error()),
+		)
+
 		return model.InfoResponse{}, err
 	}
 
@@ -34,5 +55,5 @@ func (ss *ShopService) Info(user model.User) (model.InfoResponse, error) {
 		},
 	}
 
-	return infoResponse, nil //TODO
+	return infoResponse, nil
 }
